@@ -36,8 +36,8 @@ public class TfIdfAnalyzer {
         // You should uncomment these lines when you're ready to begin working
         // on this class.
 
-        //this.idfScores = this.computeIdfScores(webpages);
-        //this.documentTfIdfVectors = this.computeAllDocumentTfIdfVectors(webpages);
+        this.idfScores = this.computeIdfScores(webpages);
+        this.documentTfIdfVectors = this.computeAllDocumentTfIdfVectors(webpages);
     }
 
     // Note: this method, strictly speaking, doesn't need to exist. However,
@@ -60,24 +60,37 @@ public class TfIdfAnalyzer {
     private IDictionary<String, Double> computeIdfScores(ISet<Webpage> pages) {
     		//create dictionary
     		IDictionary<String, Double> idf = new ArrayDictionary<String, Double>();
-    		//for each word in each webpage
+    		//for each webpage
     		for (Webpage page : pages) {
     			IList<String> words = page.getWords();
+    			//for each word in each webpage
     			for (String word : words) {
+    				//counter for how many documents the term appears in
+    				int count = 0;
     				//if it doesnt exist in the dictionary
     				if (!idf.containsKey(word)) {
-    					
+    					for (Webpage wordPage : pages) {
+    						//count number of docs it is in
+    						if (wordPage.getWords().contains(word)) {
+    							count++;
+    						}
+    					}
     				}
-    				//count number of docs it is in
-    				//compute idf (ln(pages.size / # term appears))
-    					//if term doesnt exist, say 0
-    				//store it in the dictionary
+    				//if term doesnt exist, say 0
+    				if (count == 0) {
+    					idf.put(word, 0.0);
+    				} else {
+    					//compute idf (ln(pages.size / # term appears))
+    					double idfScore = Math.log(pages.size() / count);
+    					//store it in the dictionary
+    					idf.put(word, idfScore);
+    				}
     			}
     		}
-    		//set field equal to dictionary
-		//return dictionary
+    		//return dictionary
+    		return idf;
     	
-        throw new NotYetImplementedException();
+    		//throw new NotYetImplementedException();
     }
 
     /**
@@ -107,7 +120,6 @@ public class TfIdfAnalyzer {
     			}
     		}
     		
-    		//store in a field? Does this need to be saved??
     		//return dictionary
     		return tfScores;
     }
@@ -120,10 +132,16 @@ public class TfIdfAnalyzer {
         // call the computeTfScores(...) method.
     	
     		//new dictionary<URI, IDictionary<String, Double>>
+    		IDictionary<URI, IDictionary<String, Double>> tfIdfVector = new ArrayDictionary<>();
     		//for each webpage
-    			//computeTfScores(pages.words) * idfScores.getKey(word)
+    		for (Webpage page : pages) {
+    			//computeTfScores(pages.words)
+    			//double tfScore = computeTfScores(page.getWords());
+    			//double score = computeTfScores(page.getWords());
     			//store in dictionary(URI of webpage, term, relevance)
+    		}
     		//store in a field
+    		this.documentTfIdfVectors = tfIdfVector;
     		//return dictionary
     		
     	
