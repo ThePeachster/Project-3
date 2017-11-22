@@ -76,20 +76,15 @@ public class TfIdfAnalyzer {
     						}
     					}
     				}
-    				//if term doesnt exist, say 0
-    				if (count == 0) {
-    					idf.put(word, 0.0);
-    				} else {
-    					//compute idf (ln(pages.size / # term appears))
-    					double idfScore = Math.log(pages.size() / count);
-    					//store it in the dictionary
-    					idf.put(word, idfScore);
-    				}
+					//compute idf (ln(pages.size / # term appears))
+					double idfScore = Math.log(pages.size() / count);
+					//store it in the dictionary
+					idf.put(word, idfScore);
+    			
     			}
     		}
     		//return dictionary
     		return idf;
-    	
     		//throw new NotYetImplementedException();
     }
 
@@ -131,21 +126,29 @@ public class TfIdfAnalyzer {
         // Hint: this method should use the idfScores field and
         // call the computeTfScores(...) method.
     	
-    		//new dictionary<URI, IDictionary<String, Double>>
-    		IDictionary<URI, IDictionary<String, Double>> tfIdfVector = new ArrayDictionary<>();
-    		//for each webpage
-    		for (Webpage page : pages) {
-    			//computeTfScores(pages.words)
-    			//double tfScore = computeTfScores(page.getWords());
-    			//double score = computeTfScores(page.getWords());
-    			//store in dictionary(URI of webpage, term, relevance)
-    		}
-    		//store in a field
-    		this.documentTfIdfVectors = tfIdfVector;
-    		//return dictionary
-    		
+		//new dictionary<URI, IDictionary<String, Double>>
+		IDictionary<URI, IDictionary<String, Double>> tfIdfVector = new ArrayDictionary<>();
+		//for each webpage
+		for (Webpage page : pages) {
+			//make a dictionary to keep track of relevance for each webpage
+			IDictionary<String, Double> relevance = new ArrayDictionary<>();
+			//store TF Scores
+			IDictionary<String, Double> tfScore = computeTfScores(page.getWords());
+			//for each word in the page calculate relevance
+			for (String term : page.getWords()) {
+				double tf = tfScore.get(term);
+				double idf = idfScores.get(term);
+				//store it in a dictionary until every word is calculated
+				relevance.put(term, (tf * idf));
+			}
+			//add the relevance to the dictionary all at once
+			tfIdfVector.put(page.getUri(), relevance);
+		}
+		//return dictionary
+		return tfIdfVector;
+		
     	
-        throw new NotYetImplementedException();
+        //throw new NotYetImplementedException();
     }
 
     /**
