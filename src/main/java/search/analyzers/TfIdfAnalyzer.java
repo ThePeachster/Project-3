@@ -7,6 +7,7 @@ import datastructures.interfaces.ISet;
 import misc.exceptions.NotYetImplementedException;
 import search.models.Webpage;
 
+import java.math.BigDecimal;
 import java.net.URI;
 
 /**
@@ -75,12 +76,11 @@ public class TfIdfAnalyzer {
     							count++;
     						}
     					}
+    					//compute idf (ln(pages.size / # term appears))
+    					BigDecimal score = BigDecimal.valueOf(Math.log((double)pages.size() / count));
+    					//store it in the dictionary
+    					idf.put(word, score.doubleValue());
     				}
-					//compute idf (ln(pages.size / # term appears))
-					double idfScore = Math.log(pages.size() / count);
-					//store it in the dictionary
-					idf.put(word, idfScore);
-    			
     			}
     		}
     		//return dictionary
