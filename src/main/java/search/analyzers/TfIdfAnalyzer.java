@@ -73,24 +73,24 @@ public class TfIdfAnalyzer {
             ISet<String> words = new ChainedHashSet<String>();
             //get every unique word
             for (String word : page.getWords()) {
-            	words.add(word);
+                words.add(word);
             }
             //for every unique word
             for (String word : words) {
-            	//if it doesnt exist in the dictionary, set it to 1
+                //if it doesnt exist in the dictionary, set it to 1
                 if (!idfScores.containsKey(word)) {
-                	idfScores.put(word, 1.0);
+                    idfScores.put(word, 1.0);
                 } else {
-                	//increment the score by 1 since it does exist
-                	idfScores.put(word, idfScores.get(word) + 1.0);
+                    //increment the score by 1 since it does exist
+                    idfScores.put(word, idfScores.get(word) + 1.0);
                 }
             }
         }
         for (KVPair<String, Double> pair : idfScores) {
-        	double idfScore = Math.log(pages.size() / pair.getValue());
-        	idfScores.put(pair.getKey(), idfScore);
+            double idfScore = Math.log(pages.size() / pair.getValue());
+            idfScores.put(pair.getKey(), idfScore);
         }
-            
+        
         //return dictionary
         return idfScores;
         //throw new NotYetImplementedException();
@@ -104,20 +104,20 @@ public class TfIdfAnalyzer {
     */
     private IDictionary<String, Double> computeTfScores(IList<String> words) {
         //create a dictionary
-    	 	IDictionary<String, Double> tfScores = new ChainedHashDictionary<String, Double>();
+        IDictionary<String, Double> tfScores = new ChainedHashDictionary<String, Double>();
         //for each word in the list
         for (String word : words) {
             //if word exists in dictionary
             if (tfScores.containsKey(word)) {
-            		tfScores.put(word, tfScores.get(word) + 1);
+                tfScores.put(word, tfScores.get(word) + 1);
             } else {
-            		tfScores.put(word, 1.0);
+                tfScores.put(word, 1.0);
             }
         }
         
         for (KVPair<String, Double> pair : tfScores) {
-        		//divide that number by words.size
-        		tfScores.put(pair.getKey(), pair.getValue() / words.size());
+            //divide that number by words.size
+            tfScores.put(pair.getKey(), pair.getValue() / words.size());
         }
         return tfScores;
     }
@@ -128,19 +128,19 @@ public class TfIdfAnalyzer {
     * See spec for more details on what this method should do.
     */
     private IDictionary<URI, IDictionary<String, Double>> computeAllDocumentTfIdfVectors(ISet<Webpage> pages) {
-    		IDictionary<URI, IDictionary<String, Double>> tfIdfVector = 
-    				new ChainedHashDictionary<URI, IDictionary<String, Double>>();
-    		for (Webpage page : pages) {
-	    		IDictionary<String, Double> scores = computeTfScores(page.getWords());
-	
-	    		for (KVPair<String, Double> pair : scores) {
-	        		scores.put(pair.getKey(), pair.getValue() * idfScores.get(pair.getKey()));
-	        	}
-	    		tfIdfVector.put(page.getUri(), scores);	    		
-	    	}
-	    return tfIdfVector;
+        IDictionary<URI, IDictionary<String, Double>> tfIdfVector =
+        			new ChainedHashDictionary<URI, IDictionary<String, Double>>();
+        for (Webpage page : pages) {
+            IDictionary<String, Double> scores = computeTfScores(page.getWords());
+            
+            for (KVPair<String, Double> pair : scores) {
+                scores.put(pair.getKey(), pair.getValue() * idfScores.get(pair.getKey()));
+            }
+            tfIdfVector.put(page.getUri(), scores);
+        }
+        return tfIdfVector;
     }
-
+    
     
     /**
     * Returns the cosine similarity between the TF-IDF vector for the given query and the
