@@ -1,6 +1,5 @@
 package search.analyzers;
 
-import datastructures.concrete.dictionaries.ArrayDictionary;
 
 import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
@@ -9,7 +8,6 @@ import search.models.Webpage;
 import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.concrete.ChainedHashSet;
 import datastructures.concrete.KVPair;
-import java.math.BigDecimal;
 import java.net.URI;
 
 
@@ -72,19 +70,20 @@ public class TfIdfAnalyzer {
         idfScores = new ChainedHashDictionary<String, Double>();
         //for each webpage
         for (Webpage page : pages) {
-            ISet<String> words = new ChainedHashSet<>();
+            ISet<String> words = new ChainedHashSet<String>();
             //get every unique word
             for (String word : page.getWords()) {
             	words.add(word);
             }
             //for every unique word
             for (String word : words) {
-            	//if it doesnt exist in the dictionary, set it to 0
+            	//if it doesnt exist in the dictionary, set it to 1
                 if (!idfScores.containsKey(word)) {
-                	idfScores.put(word, 0.0);
+                	idfScores.put(word, 1.0);
+                } else {
+                	//increment the score by 1 since it does exist
+                	idfScores.put(word, idfScores.get(word) + 1.0);
                 }
-                //increment the score by 1 since it does exist
-                idfScores.put(word, idfScores.get(word) + 1.0);
             }
         }
         for (KVPair<String, Double> pair : idfScores) {
@@ -129,33 +128,19 @@ public class TfIdfAnalyzer {
     * See spec for more details on what this method should do.
     */
     private IDictionary<URI, IDictionary<String, Double>> computeAllDocumentTfIdfVectors(ISet<Webpage> pages) {
-        // Hint: this method should use the idfScores field and
-        // call the computeTfScores(...) method.
-        
-        //new dictionary<URI, IDictionary<String, Double>>
-        IDictionary<URI, IDictionary<String, Double>> tfIdfVector = new ArrayDictionary<>();
-        //for each webpage
-        for (Webpage page : pages) {
-            //make a dictionary to keep track of relevance for each webpage
-            IDictionary<String, Double> relevance = new ArrayDictionary<>();
-            //store TF Scores
-            IDictionary<String, Double> tfScore = computeTfScores(page.getWords());
-            //for each word in the page calculate relevance
-            for (String term : page.getWords()) {
-                double tf = tfScore.get(term);
-                double idf = idfScores.get(term);
-                //store it in a dictionary until every word is calculated
-                relevance.put(term, (tf * idf));
-            }
-            //add the relevance to the dictionary all at once
-            tfIdfVector.put(page.getUri(), relevance);
-        }
-        //return dictionary
-        return tfIdfVector;
-        
-        
-        //throw new NotYetImplementedException();
+    		IDictionary<URI, IDictionary<String, Double>> tfIdfVector = 
+    				new ChainedHashDictionary<URI, IDictionary<String, Double>>();
+    		for (Webpage page : pages) {
+	    		IDictionary<String, Double> scores = computeTfScores(page.getWords());
+	
+	    		for (KVPair<String, Double> pair : scores) {
+	        		scores.put(pair.getKey(), pair.getValue() * idfScores.get(pair.getKey()));
+	        	}
+	    		tfIdfVector.put(page.getUri(), scores);	    		
+	    	}
+	    return tfIdfVector;
     }
+
     
     /**
     * Returns the cosine similarity between the TF-IDF vector for the given query and the
