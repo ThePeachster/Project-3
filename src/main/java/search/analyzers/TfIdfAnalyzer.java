@@ -108,28 +108,25 @@ public class TfIdfAnalyzer {
     */
     private IDictionary<String, Double> computeTfScores(IList<String> words) {
         //create a dictionary
-        IDictionary<String, Double> tfScores = new ArrayDictionary<>();
+    	 	IDictionary<String, Double> tfScores = new ChainedHashDictionary<String, Double>();
         //for each word in the list
         for (String word : words) {
-            //if word doesn't exist in dictionary
-            if (!tfScores.containsKey(word)) {
-                int count = 0;
-                //find the number of times we see it in the doc
-                for (int i = 0; i < words.size(); i++) {
-                    if (words.get(i).equals(word)) {
-                        count++;
-                    }
-                }
-                //divide that number by words.size
-                Double termScore = (double) count / (double) words.size();
-                //put word and termscore in dictionary
-                tfScores.put(word, termScore);
+            //if word exists in dictionary
+            if (tfScores.containsKey(word)) {
+            		tfScores.put(word, tfScores.get(word) + 1);
+            } else {
+            		tfScores.put(word, 1.0);
             }
         }
         
-        //return dictionary
+        for (KVPair<String, Double> pair : tfScores) {
+        		//divide that number by words.size
+        		tfScores.put(pair.getKey(), pair.getValue() / words.size());
+        }
         return tfScores;
     }
+    
+    
     
     /**
     * See spec for more details on what this method should do.
