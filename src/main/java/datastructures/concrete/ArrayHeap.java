@@ -104,17 +104,6 @@ public class ArrayHeap<T extends Comparable<T>> implements IPriorityQueue<T> {
         heap[heapSize] = item;
         percolateUp(heapSize);
         
-        // recurse through the heap
-        // if there is a parent
-        // int child = size;
-        // T parent = heap[(child - 1)/NUM_CHILDREN];
-        // if (heap[parent] > heap[child])
-        // T temp = heap[parent]
-        // heap[parent] = heap[child]
-        // heap[child] = parent
-        // update child
-        // recurse again
-        
         heapSize++;
     }
     

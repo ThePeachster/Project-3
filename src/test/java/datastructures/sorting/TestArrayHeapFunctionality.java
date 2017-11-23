@@ -132,5 +132,12 @@ public class TestArrayHeapFunctionality extends BaseTest {
         assertTrue(heap.isEmpty());
     }
     
+    @Test(timeout=SECOND)
+    public void testResize() {
+        IPriorityQueue<Integer> heap = this.makeInstance();
+        heap.insert(1);
+        assertEquals(heap.size(), 1);
+    }
+    
     
 }
