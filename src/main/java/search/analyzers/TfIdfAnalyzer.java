@@ -84,10 +84,14 @@ public class TfIdfAnalyzer {
                             count++;
                         }
                     }
-                    //compute idf (ln(pages.size / # term appears))
-                    BigDecimal score = BigDecimal.valueOf(Math.log((double) pages.size() / count));
-                    //store it in the dictionary
-                    idf.put(word, score.doubleValue());
+                    if (count == 0) {
+                    		idf.put(word, 0.0);
+                    } else {
+	                    //compute idf (ln(pages.size / # term appears))
+	                    BigDecimal score = BigDecimal.valueOf(Math.log((double) pages.size() / count));
+	                    //store it in the dictionary
+	                    idf.put(word, score.doubleValue());
+                    }
                 }
             }
         }
