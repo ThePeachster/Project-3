@@ -7,6 +7,7 @@ import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
 import search.models.Webpage;
 import datastructures.concrete.dictionaries.ChainedHashDictionary;
+import datastructures.concrete.ChainedHashSet;
 import datastructures.concrete.KVPair;
 import java.math.BigDecimal;
 import java.net.URI;
@@ -67,36 +68,32 @@ public class TfIdfAnalyzer {
     * in any documents to their IDF score.
     */
     private IDictionary<String, Double> computeIdfScores(ISet<Webpage> pages) {
-        //create dictionary
-        IDictionary<String, Double> idf = new ArrayDictionary<String, Double>();
+        //use field to save time
+        idfScores = new ChainedHashDictionary<String, Double>();
         //for each webpage
         for (Webpage page : pages) {
-            IList<String> words = page.getWords();
-            //for each word in each webpage
+            ISet<String> words = new ChainedHashSet<>();
+            //get every unique word
+            for (String word : page.getWords()) {
+            	words.add(word);
+            }
+            //for every unique word
             for (String word : words) {
-                //counter for how many documents the term appears in
-                int count = 0;
-                //if it doesnt exist in the dictionary
-                if (!idf.containsKey(word)) {
-                    for (Webpage wordPage : pages) {
-                        //count number of docs it is in
-                        if (wordPage.getWords().contains(word)) {
-                            count++;
-                        }
-                    }
-                    if (count == 0) {
-                    		idf.put(word, 0.0);
-                    } else {
-	                    //compute idf (ln(pages.size / # term appears))
-	                    BigDecimal score = BigDecimal.valueOf(Math.log((double) pages.size() / count));
-	                    //store it in the dictionary
-	                    idf.put(word, score.doubleValue());
-                    }
+            	//if it doesnt exist in the dictionary, set it to 0
+                if (!idfScores.containsKey(word)) {
+                	idfScores.put(word, 0.0);
                 }
+                //increment the score by 1 since it does exist
+                idfScores.put(word, idfScores.get(word) + 1.0);
             }
         }
+        for (KVPair<String, Double> pair : idfScores) {
+        	double idfScore = Math.log(pages.size() / pair.getValue());
+        	idfScores.put(pair.getKey(), idfScore);
+        }
+            
         //return dictionary
-        return idf;
+        return idfScores;
         //throw new NotYetImplementedException();
     }
     
