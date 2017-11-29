@@ -62,7 +62,7 @@ public class PageRankAnalyzer {
      * entirely "self-contained".
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
-    	IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
+    	IDictionary<URI, ISet<URI>> graph = new ArrayDictionary<>();
     	// make a set of the URIs of all webpages for later comparison
     	ISet<URI> allPages = new ChainedHashSet<>();
     	for (Webpage compare : webpages) {
@@ -74,6 +74,7 @@ public class PageRankAnalyzer {
     		URI currentPage = page.getUri();
     		IList<URI> links = page.getLinks();
     		ISet<URI> setLinks = new ChainedHashSet<>();
+    		// convert list to set for returning
     		for (URI link : links) {
     			// if it doesnt link to itself and doesnt link to something not in the set
     			if (!link.equals(currentPage) && allPages.contains(link)) {
@@ -102,7 +103,7 @@ public class PageRankAnalyzer {
                                                    int limit,
                                                    double epsilon) {
         // Step 1: The initialize step should go here
-
+    	
         for (int i = 0; i < limit; i++) {
             // Step 2: The update step should go here
 
@@ -121,6 +122,6 @@ public class PageRankAnalyzer {
     public double computePageRank(URI pageUri) {
         // Implementation note: this method should be very simple: just one line!
         // TODO: Add working code here
-        return 1.0;
+        return pageRanks.get(pageUri);
     }
 }
