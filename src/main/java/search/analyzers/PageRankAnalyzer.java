@@ -63,6 +63,11 @@ public class PageRankAnalyzer {
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
     	IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
+    	// make a set of the URIs of all webpages for later comparison
+    	ISet<URI> allPages = new ChainedHashSet<>();
+    	for (Webpage compare : webpages) {
+    		allPages.add(compare.getUri());
+    	}
     	// in each webpage
     	for (Webpage page : webpages) {
     		// get the links and store it in a list
@@ -71,7 +76,7 @@ public class PageRankAnalyzer {
     		ISet<URI> setLinks = new ChainedHashSet<>();
     		for (URI link : links) {
     			// if it doesnt link to itself and doesnt link to something not in the set
-    			if (!link.equals(currentPage) && links.contains(link)) {
+    			if (!link.equals(currentPage) && allPages.contains(link)) {
     				setLinks.add(link);
     			}
     		}
