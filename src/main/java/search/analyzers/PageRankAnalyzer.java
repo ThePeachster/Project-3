@@ -1,11 +1,16 @@
 package search.analyzers;
 
+import datastructures.concrete.ChainedHashSet;
+import datastructures.concrete.dictionaries.ArrayDictionary;
+import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
+import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
 import misc.exceptions.NotYetImplementedException;
 import search.models.Webpage;
 
 import java.net.URI;
+import java.util.ArrayList;
 
 /**
  * This class is responsible for computing the 'page rank' of all available webpages.
@@ -57,7 +62,22 @@ public class PageRankAnalyzer {
      * entirely "self-contained".
      */
     private IDictionary<URI, ISet<URI>> makeGraph(ISet<Webpage> webpages) {
-        throw new NotYetImplementedException();
+    	IDictionary<URI, ISet<URI>> graph = new ChainedHashDictionary<>();
+    	// in each webpage
+    	for (Webpage page : webpages) {
+    		// get the links and store it in a list
+    		URI currentPage = page.getUri();
+    		IList<URI> links = page.getLinks();
+    		ISet<URI> setLinks = new ChainedHashSet<>();
+    		for (URI link : links) {
+    			// if it doesnt link to itself and doesnt link to something not in the set
+    			if (!link.equals(currentPage) && links.contains(link)) {
+    				setLinks.add(link);
+    			}
+    		}
+    		graph.put(currentPage, setLinks);
+    	}	
+        return graph;
     }
 
     /**
