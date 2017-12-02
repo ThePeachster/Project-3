@@ -7,11 +7,9 @@ import datastructures.concrete.dictionaries.ChainedHashDictionary;
 import datastructures.interfaces.IDictionary;
 import datastructures.interfaces.IList;
 import datastructures.interfaces.ISet;
-import misc.exceptions.NotYetImplementedException;
 import search.models.Webpage;
 
 import java.net.URI;
-import java.util.ArrayList;
 
 /**
  * This class is responsible for computing the 'page rank' of all available webpages.
@@ -42,10 +40,10 @@ public class PageRankAnalyzer {
         // on this class.
 
         // Step 1: Make a graph representing the 'internet'
-        //IDictionary<URI, ISet<URI>> graph = this.makeGraph(webpages);
+        IDictionary<URI, ISet<URI>> graph = this.makeGraph(webpages);
 
         // Step 2: Use this graph to compute the page rank for each webpage
-        //this.pageRanks = this.makePageRanks(graph, decay, limit, epsilon);
+        this.pageRanks = this.makePageRanks(graph, decay, limit, epsilon);
 
         // Note: we don't store the graph as a field: once we've computed the
         // page ranks, we no longer need it!
@@ -100,23 +98,61 @@ public class PageRankAnalyzer {
      *                  page rank never converges.
      */
     private IDictionary<URI, Double> makePageRanks(IDictionary<URI, ISet<URI>> graph,
-                                                   double decay,
-                                                   int limit,
-                                                   double epsilon) {
-        // Step 1: The initialize step should go here
-    	IDictionary<URI, Double> webpageRanks = new ChainedHashDictionary<>();
-    	for (KVPair pair : graph) {
-    		URI newUri = (URI) pair.getKey();
-    		webpageRanks.put(newUri, ((double)1 / graph.size()));
-    	}
-        for (int i = 0; i < limit; i++) {
-            // Step 2: The update step should go here
-        	
-
-            // Step 3: the convergence step should go here.
-            // Return early if we've converged.
-        }
-        throw new NotYetImplementedException();
+    			double decay,
+    			int limit,
+    			double epsilon) {
+	    // Step 1: The initialize step should go here
+	    IDictionary<URI, Double> webpageRanks = new ChainedHashDictionary<URI, Double>();
+	    for (KVPair<URI, ISet<URI>> pair : graph) {
+	        webpageRanks.put(pair.getKey(), 1.0 / (double) graph.size());
+	    }
+	    
+	    
+	    	for (int i = 0; i < limit; i++) { 
+	    		IDictionary<URI, Double> temp = new ChainedHashDictionary<URI, Double>();
+	    		// Step 2: The update step should go here
+		    // give web page new rank of 0
+	    		for (KVPair<URI, ISet<URI>> pair : graph) {
+	        		temp.put(pair.getKey(), 0.0);
+	    	    }
+	    		
+		    // share old page rank with every webpage it links to
+	    		for (KVPair<URI, ISet<URI>> pair : graph) {
+	    			ISet<URI> links = pair.getValue();
+	    			if (!links.isEmpty()) {
+	    				for (URI uri : links) {
+						double rank = temp.get(uri) + (webpageRanks.get(pair.getKey()) * decay / (double) links.size());
+						temp.put(uri, rank);
+					}
+	    			} else {
+	    				for (KVPair<URI, Double> tempPair : temp) {
+	    					temp.put(tempPair.getKey(), tempPair.getValue() + 
+	    							decay * (webpageRanks.get(pair.getKey()) / graph.size()));
+	    				} 
+					
+	    			}    			
+	    		}
+	    		
+	    		boolean check = false;
+	    		int count = 0;
+	    		for(KVPair<URI, Double> pair : temp) {	    			
+	    			URI uri = pair.getKey();
+	    			double newPageRank = pair.getValue() + (1 - decay) / graph.size();
+	    			// old page rank - new page rank < epsilon
+	    			if (Math.abs(webpageRanks.get(uri) - newPageRank) < epsilon) {
+	    				count++;
+	    			}
+	    			if (count == temp.size()) {
+	    				check = true;
+	    			}
+	    			webpageRanks.put(uri, newPageRank);
+	    		}
+	    		// check: if converged, stop
+	    		if (check) {
+	    			return webpageRanks;
+	    		}
+	    	}
+	    	return webpageRanks;
     }
 
     /**
